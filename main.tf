@@ -18,9 +18,9 @@ module "database" {
   db_storage = 10 #gibibites just 1024mb instead of 1000megabyts
   db_engine_version = "5.7.22"
   db_instance_class = "db.t2.micro"
-  dbname = "josh"
-  dbuser = "josh"
-  dbpassword = "tellmeabout2021"
+  dbname = var.dbname
+  dbuser = var.dbuser
+  dbpassword = var.dbpassword
   db_identifier = "k3-db"
   skip_db_final_snapshot = true
   db_subnet_group_name = module.networking.db_subnet_group_name[0] //remember we only set one of this and it has to get only one
