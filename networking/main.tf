@@ -24,6 +24,7 @@ resource "aws_vpc" "k3_vpc" {
   }
 }
 
+# ADD THE SUBNETS
 resource "aws_subnet" "public" {
   count                   = var.public_sn_count
   vpc_id                  = aws_vpc.k3_vpc.id
@@ -37,6 +38,12 @@ resource "aws_subnet" "public" {
   }
 }
 
+resource "aws_route_table_association" "k3_public_assoc" {
+  count = var.public_sn_count
+  subnet_id = aws_subnet.public.*.id[count.index]
+  route_table_id = aws_route_table.k8_public_rt.id
+}
+
 resource "aws_subnet" "private" {
   count                   = var.private_sn_count
   vpc_id                  = aws_vpc.k3_vpc.id
@@ -47,5 +54,43 @@ resource "aws_subnet" "private" {
   tags = {
     Name  = "k3_private_subnet_${count.index + 1}"
     Owner = "terraform"
+  }
+}
+
+# ADD THE INTERNET GATEWAY
+resource "aws_internet_gateway" "k3_internet_gateway" {
+  vpc_id = aws_vpc.k3_vpc.id
+
+  tags = {
+    Name = "k3_igw"
+    owner = "terraform"
+  }
+}
+
+# ADD public ROUTE TABLE
+resource "aws_route_table" "k8_public_rt" {
+  vpc_id = aws_vpc.k3_vpc.id
+
+  tags = {
+    Name = "k3_public_rt"
+    owner = "terraform"
+  }
+}
+
+resource "aws_route" "default_route" { //this is the route table that the subnet will use if not explicitly associated 
+  route_table_id = aws_route_table.k8_public_rt.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.k3_internet_gateway.id
+}
+
+
+# ADD private ROUTE TABLE
+//everyvpc has a default rt and we are specifying that the default rt by vpc should be default for all of our resources | we can create ours if we want
+resource "aws_default_route_table" "k8_private_rt" {
+  default_route_table_id = aws_vpc.k3_vpc.default_route_table_id
+  
+  tags = {
+    Name = "k3_private_rt"
+    owner = "terraform"
   }
 }
