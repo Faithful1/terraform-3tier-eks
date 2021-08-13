@@ -22,6 +22,10 @@ resource "aws_vpc" "k3_vpc" {
     Name  = "k3_vpc_${random_integer.random.id}"
     Owner = var.owner
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # ADD THE SUBNETS
@@ -82,7 +86,6 @@ resource "aws_route" "default_route" { //this is the route table that the subnet
   destination_cidr_block = "0.0.0.0/0"
   gateway_id = aws_internet_gateway.k3_internet_gateway.id
 }
-
 
 # ADD private ROUTE TABLE
 //everyvpc has a default rt and we are specifying that the default rt by vpc should be default for all of our resources | we can create ours if we want
