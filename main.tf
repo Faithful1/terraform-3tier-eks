@@ -20,8 +20,9 @@ module "database" {
   db_instance_class = "db.t2.micro"
   dbname = "josh"
   dbuser = "josh"
-  dbpassword = "k3-db"
+  dbpassword = "tellmeabout2021"
+  db_identifier = "k3-db"
   skip_db_final_snapshot = true
-  db_subnet_group_name = ""
-  vpc_security_group_ids = []
+  db_subnet_group_name = module.networking.db_subnet_group_name[0] //remember we only set one of this and it has to get only one
+  vpc_security_group_ids = module.networking.db_security_group_id
 }
