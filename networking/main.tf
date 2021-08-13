@@ -29,7 +29,7 @@ resource "aws_vpc" "k3_vpc" {
 }
 
 # ADD THE SUBNETS
-resource "aws_subnet" "public" {
+resource "aws_subnet" "k3_public_subnet" {
   count                   = var.public_sn_count
   vpc_id                  = aws_vpc.k3_vpc.id
   cidr_block              = var.public_cidrs[count.index]
@@ -44,11 +44,11 @@ resource "aws_subnet" "public" {
 
 resource "aws_route_table_association" "k3_public_assoc" {
   count          = var.public_sn_count
-  subnet_id      = aws_subnet.public.*.id[count.index]
+  subnet_id      = aws_subnet.k3_public_subnet.*.id[count.index]
   route_table_id = aws_route_table.k8_public_rt.id
 }
 
-resource "aws_subnet" "private" {
+resource "aws_subnet" "k3_private_subnet" {
   count                   = var.private_sn_count
   vpc_id                  = aws_vpc.k3_vpc.id
   cidr_block              = var.private_cidrs[count.index]
@@ -109,9 +109,9 @@ resource "aws_security_group" "k3_sg" {
   dynamic "ingress" {
     for_each = each.value.ingress
     content {
-      from_port  = ingress.value.from
-      to_port    = ingress.value.to
-      protocol   = ingress.value.protocol
+      from_port   = ingress.value.from
+      to_port     = ingress.value.to
+      protocol    = ingress.value.protocol
       cidr_blocks = ingress.value.cidr_blocks
     }
   }
@@ -132,5 +132,15 @@ resource "aws_security_group" "k3_sg" {
   tags = {
     Name  = "k3_allow_ssh"
     Owner = "terraform"
+  }
+}
+
+resource "aws_db_subnet_group" "k3_rds_subnet_group" {
+  count      = var.db_subnet_group ? 1 : 0
+  name       = "k3_rds_subnet_group"
+  subnet_ids = aws_subnet.k3_private_subnet.*.id
+
+  tags = {
+    Name = "k3_rds_subnet_group"
   }
 }
