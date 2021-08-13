@@ -5,6 +5,10 @@ variable "vpc_cidr" {
 }
 
 variable "owner" {
-  type = string
+  type    = string
   default = "terraform"
+}
+
+variable "public_cidrs" {
+  type = list(any)
 }
