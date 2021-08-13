@@ -29,3 +29,15 @@ resource "aws_subnet" "public" {
   }
 }
 
+resource "aws_subnet" "private" {
+  count                   = length(var.private_cidrs)
+  vpc_id                  = aws_vpc.k3_vpc.id
+  cidr_block              = var.private_cidrs[count.index]
+  map_public_ip_on_launch = false //defaults to fault already
+  availability_zone       = ["us-west-2a", "us-west-2b", "us-west-2c", "us-west-2d"][count.index]
+
+  tags = {
+    Name  = "k3_private_subnet_${count.index + 1}"
+    Owner = "terraform"
+  }
+}
