@@ -1,5 +1,10 @@
 # --- networking/variables.tf ---
 
-variable "k3_vpc" {
-  cidr_block = var.vpc_cidr
+variable "vpc_cidr" {
+  type = string
+}
+
+variable "owner" {
+  type = string
+  default = "terraform"
 }

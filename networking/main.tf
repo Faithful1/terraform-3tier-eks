@@ -11,6 +11,7 @@ resource "aws_vpc" "k3_vpc" {
   enable_dns_support = true
 
   tags = {
-    "Name" = "kr_vpc-${random_integer.random.id}"
+    Name = "k3_vpc-${random_integer.random.id}"
+    Owner = var.owner
   }
 }
