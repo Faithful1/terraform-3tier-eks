@@ -141,6 +141,7 @@ resource "aws_db_subnet_group" "k3_rds_subnet_group" {
   subnet_ids = aws_subnet.k3_private_subnet.*.id
 
   tags = {
-    Name = "k3_rds_subnet_group"
+    Name  = "k3_rds_subnet_group"
+    Owner = "terraform"
   }
 }

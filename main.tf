@@ -26,3 +26,9 @@ module "database" {
   db_subnet_group_name = module.networking.db_subnet_group_name[0] //remember we only set one of this and it has to get only one
   vpc_security_group_ids = module.networking.db_security_group_id
 }
+
+module "loadbalancing" {
+  source = "./loadbalancing"
+  public_subnets = module.networking.public_sg
+  public_sg = module.networking.public_subnets
+}
