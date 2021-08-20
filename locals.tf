@@ -9,16 +9,16 @@ locals {
       description = "Allow SSH Traffic to VPC"
       ingress = {
         ssh = {
-          from             = 22
-          to               = 22
-          protocol         = "tcp"
-          cidr_blocks      = [var.access_ip]
+          from        = 22
+          to          = 22
+          protocol    = "tcp"
+          cidr_blocks = [var.access_ip]
         }
         http = {
-          from             = 80
-          to               = 80
-          protocol         = "tcp"
-          cidr_blocks      = [var.access_ip]
+          from        = 80
+          to          = 80
+          protocol    = "tcp"
+          cidr_blocks = [var.access_ip]
         }
       }
     }
@@ -28,10 +28,10 @@ locals {
       description = "Allow Traffic for RDS Access"
       ingress = {
         mysql = {
-          from             = 3306
-          to               = 3306
-          protocol         = "tcp"
-          cidr_blocks      = [local.vpc_cidr]
+          from        = 3306
+          to          = 3306
+          protocol    = "tcp"
+          cidr_blocks = [local.vpc_cidr]
         }
       }
     }

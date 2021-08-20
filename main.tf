@@ -14,21 +14,28 @@ module "networking" {
 }
 
 module "database" {
-  source = "./database"
-  db_storage = 10 #gibibites just 1024mb instead of 1000megabyts
-  db_engine_version = "5.7.22"
-  db_instance_class = "db.t2.micro"
-  dbname = var.dbname
-  dbuser = var.dbuser
-  dbpassword = var.dbpassword
-  db_identifier = "k3-db"
+  source                 = "./database"
+  db_storage             = 10 #gibibites just 1024mb instead of 1000megabyts
+  db_engine_version      = "5.7.22"
+  db_instance_class      = "db.t2.micro"
+  dbname                 = var.dbname
+  dbuser                 = var.dbuser
+  dbpassword             = var.dbpassword
+  db_identifier          = "k3-db"
   skip_db_final_snapshot = true
-  db_subnet_group_name = module.networking.db_subnet_group_name[0] //remember we only set one of this and it has to get only one
+  db_subnet_group_name   = module.networking.db_subnet_group_name[0] //remember we only set one of this and it has to get only one
   vpc_security_group_ids = module.networking.db_security_group_id
 }
 
 module "loadbalancing" {
-  source = "./loadbalancing"
-  public_subnets = module.networking.public_sg
-  public_sg = module.networking.public_subnets
+  source                 = "./loadbalancing"
+  public_subnets         = module.networking.public_sg
+  public_sg              = module.networking.public_subnets
+  tg_port                = 80
+  tg_protocol            = "HTTP"
+  vpc_id                 = module.networking.vpc_id
+  lb_healthy_threshold   = 2
+  lb_unhealthy_threshold = 2
+  lb_timeout             = 3
+  lb_interval            = 30
 }
