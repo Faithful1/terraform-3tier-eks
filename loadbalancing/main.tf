@@ -32,3 +32,14 @@ resource "aws_lb_target_group" "k3_tg" {
     Owner = "terraform"
   }
 }
+
+resource "aws_lb_listener" "k3_lb_listener" {
+  load_balancer_arn = aws_lb.k3_lb.arn
+  port              = var.listener_port     #"80"
+  protocol          = var.listener_protocol #"HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.k3_tg.arn
+  }
+}
