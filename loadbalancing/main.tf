@@ -3,10 +3,10 @@
 resource "aws_lb" "k3_lb" {
   name                       = "k3-loadbalancer"
   subnets                    = var.public_subnets
-  security_groups            = var.public_sg
+  security_groups            = [var.public_sg]
   idle_timeout               = 400
   load_balancer_type         = "application"
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   tags = {
     Name  = "k3_loadbalancer"
