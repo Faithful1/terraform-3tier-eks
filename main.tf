@@ -43,10 +43,12 @@ module "loadbalancing" {
 }
 
 module "compute" {
-  source         = "./compute"
-  instance_count = 1
-  instance_type  = "t3.micro"
-  public_sg      = module.networking.public_sg
-  public_subnets = module.networking.public_subnets
-  vol_size       = 10
+  source          = "./compute"
+  instance_count  = 1
+  instance_type   = "t3.micro"
+  public_sg       = module.networking.public_sg
+  public_subnets  = module.networking.public_subnets
+  vol_size        = 10
+  key_name        = "k3_key"
+  public_key_path = "/home/devops/.ssh/keyk3.pub"
 }
