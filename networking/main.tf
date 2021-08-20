@@ -8,7 +8,7 @@ resource "random_integer" "random" {
   max = 100
 }
 
-resource "random_shuffle" "az_list" {
+resource "random_shuffle" "public_az" {
   input        = data.aws_availability_zones.available.names
   result_count = var.max_subnets
 }
@@ -34,7 +34,7 @@ resource "aws_subnet" "k3_public_subnet" {
   vpc_id                  = aws_vpc.k3_vpc.id
   cidr_block              = var.public_cidrs[count.index]
   map_public_ip_on_launch = true
-  availability_zone       = random_shuffle.az_list.result[count.index]
+  availability_zone       = random_shuffle.public_az.result[count.index]
 
   tags = {
     Name  = "k3_public_subnet_${count.index + 1}"
@@ -42,21 +42,27 @@ resource "aws_subnet" "k3_public_subnet" {
   }
 }
 
-resource "aws_route_table_association" "k3_public_assoc" {
-  count          = var.public_sn_count
-  subnet_id      = aws_subnet.k3_public_subnet.*.id[count.index]
-  route_table_id = aws_route_table.k8_public_rt.id
-}
-
 resource "aws_subnet" "k3_private_subnet" {
   count                   = var.private_sn_count
   vpc_id                  = aws_vpc.k3_vpc.id
   cidr_block              = var.private_cidrs[count.index]
-  map_public_ip_on_launch = false //defaults to fault already
-  availability_zone       = random_shuffle.az_list.result[count.index]
+  map_public_ip_on_launch = false
+  availability_zone       = random_shuffle.public_az.result[count.index]
 
   tags = {
     Name  = "k3_private_subnet_${count.index + 1}"
+    Owner = "terraform"
+  }
+}
+
+# DB SUBNET GROUP
+resource "aws_db_subnet_group" "k3_rds_subnet_group" {
+  count      = var.db_subnet_group ? 1 : 0
+  name       = "k3_rds_subnet_group"
+  subnet_ids = aws_subnet.k3_private_subnet.*.id
+
+  tags = {
+    Name  = "k3_rds_subnet_group"
     Owner = "terraform"
   }
 }
@@ -72,7 +78,7 @@ resource "aws_internet_gateway" "k3_internet_gateway" {
 }
 
 # ADD public ROUTE TABLE
-resource "aws_route_table" "k8_public_rt" {
+resource "aws_route_table" "k3_public_rt" {
   vpc_id = aws_vpc.k3_vpc.id
 
   tags = {
@@ -81,15 +87,18 @@ resource "aws_route_table" "k8_public_rt" {
   }
 }
 
-resource "aws_route" "default_route" { //this is the route table that the subnet will use if not explicitly associated 
-  route_table_id         = aws_route_table.k8_public_rt.id
+//this is the route table that the subnet will use if not explicitly associated 
+resource "aws_route" "default_route" { 
+  route_table_id         = aws_route_table.k3_public_rt.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.k3_internet_gateway.id
 }
 
 # ADD private ROUTE TABLE
-//everyvpc has a default rt and we are specifying that the default rt by vpc should be default for all of our resources | we can create ours if we want
-resource "aws_default_route_table" "k8_private_rt" {
+//every vpc has a default rt and we are specifying that the default rt by vpc 
+//should be default for all of our resources | we can create ours if we want
+
+resource "aws_default_route_table" "k3_private_rt" {
   default_route_table_id = aws_vpc.k3_vpc.default_route_table_id
 
   tags = {
@@ -97,6 +106,14 @@ resource "aws_default_route_table" "k8_private_rt" {
     owner = "terraform"
   }
 }
+
+resource "aws_route_table_association" "k3_public_assoc" {
+  count          = var.public_sn_count
+  subnet_id      = aws_subnet.k3_public_subnet.*.id[count.index]
+  route_table_id = aws_route_table.k3_public_rt.id
+}
+
+
 
 # ADD SECURITY GROUP
 
@@ -130,18 +147,6 @@ resource "aws_security_group" "k3_sg" {
   ]
 
   tags = {
-    Name  = "k3_allow_ssh"
-    Owner = "terraform"
-  }
-}
-
-resource "aws_db_subnet_group" "k3_rds_subnet_group" {
-  count      = var.db_subnet_group ? 1 : 0
-  name       = "k3_rds_subnet_group"
-  subnet_ids = aws_subnet.k3_private_subnet.*.id
-
-  tags = {
-    Name  = "k3_rds_subnet_group"
     Owner = "terraform"
   }
 }

@@ -29,8 +29,8 @@ module "networking" {
 
 module "loadbalancing" {
   source                 = "./loadbalancing"
-  public_subnets         = module.networking.public_sg
-  public_sg              = module.networking.public_subnets
+  public_subnets         = module.networking.public_subnets
+  public_sg              = module.networking.public_sg
   tg_port                = 80
   tg_protocol            = "HTTP"
   vpc_id                 = module.networking.vpc_id
