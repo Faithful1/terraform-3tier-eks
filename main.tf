@@ -52,4 +52,8 @@ module "compute" {
   key_name        = "k3_key"
   public_key_path = "/home/devops/.ssh/keyk3.pub"
   user_data_path  = "${path.root}/userdata.tpl"
+  dbname          = var.dbname
+  dbuser          = var.dbuser
+  dbpassword      = var.dbpassword
+  db_endpoint     = module.database.db_endpoint
 }
