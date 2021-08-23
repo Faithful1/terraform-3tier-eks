@@ -32,7 +32,7 @@ resource "aws_instance" "k3_node" {
   subnet_id              = var.public_subnets[count.index]
   user_data = templatefile(var.user_data_path,
     {
-      nodename    = "k3_node-${random_id.k3_node_id[count.index].dec}"
+      nodename    = "k3-node-${random_id.k3_node_id[count.index].dec}"
       db_endpoint = var.db_endpoint
       dbuser      = var.dbuser
       dbpass      = var.dbpassword
