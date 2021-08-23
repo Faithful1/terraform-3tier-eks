@@ -1,4 +1,3 @@
-
 #!/bin/bash
 sudo hostnamectl set-hostname ${nodename} &&
 curl -sfL https://get.k3s.io | sh -s - server \
