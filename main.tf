@@ -3,7 +3,7 @@
 module "networking" {
   source           = "./networking"
   vpc_cidr         = local.vpc_cidr
-  access_ip        = var.access_ip
+  access_ip        = "var.access_ip"
   security_groups  = local.security_groups
   public_sn_count  = 2
   private_sn_count = 3
@@ -31,7 +31,7 @@ module "loadbalancing" {
   source                 = "./loadbalancing"
   public_subnets         = module.networking.public_subnets
   public_sg              = module.networking.public_sg
-  tg_port                = 80
+  tg_port                = 8000
   tg_protocol            = "HTTP"
   vpc_id                 = module.networking.vpc_id
   lb_healthy_threshold   = 2
@@ -56,4 +56,5 @@ module "compute" {
   dbuser          = var.dbuser
   dbpassword      = var.dbpassword
   db_endpoint     = module.database.db_endpoint
+  lb_target_group_arn = module.loadbalancing.lb_target_group_arn
 }

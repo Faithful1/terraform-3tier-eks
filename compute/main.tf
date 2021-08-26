@@ -6,7 +6,7 @@ data "aws_ami" "k3_ami" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 }
 
@@ -43,6 +43,13 @@ resource "aws_instance" "k3_node" {
     volume_size = var.vol_size # 10
   }
   tags = {
-    Name = "k3_node-${random_id.k3_node_id[count.index].dec}"
+    Name = "k3-${random_id.k3_node_id[count.index].dec}"
   }
+}
+
+resource "aws_lb_target_group_attachment" "k3_tg_attach"{
+  count = var.instance_count
+  target_group_arn = var.lb_target_group_arn
+  target_id = aws_instance.k3_node[count.index].id
+  port = 8000
 }
