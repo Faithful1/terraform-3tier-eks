@@ -1,4 +1,3 @@
-sleep 60 && 
 scp -i /home/devops/.ssh/keyk3 \
 -o StrictHostKeyChecking=no \
 -o UserKnownHostsFile=/dev/null \

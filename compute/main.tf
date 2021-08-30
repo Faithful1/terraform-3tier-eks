@@ -45,6 +45,16 @@ resource "aws_instance" "k3_node" {
     }
   )
 
+  provisioner "remote-exec" {
+    connection {
+        type   = "ssh"
+        user = "ubuntu"
+        host = self.public_ip
+        private_key = file("/home/devops/.ssh/keyk3")
+      }
+      script = "${path.cwd}/delay.sh"
+  }
+
   root_block_device {
     volume_size = var.vol_size # 10
   }
