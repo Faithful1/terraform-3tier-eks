@@ -30,6 +30,11 @@ resource "aws_instance" "k3_node" {
   key_name               = aws_key_pair.k3_pc_auth.id
   vpc_security_group_ids = [var.public_sg]
   subnet_id              = var.public_subnets[count.index]
+  
+  tags = {
+    Name = "k3-${random_id.k3_node_id[count.index].dec}"
+  }
+  
   user_data = templatefile(var.user_data_path,
     {
       nodename    = "k3-node-${random_id.k3_node_id[count.index].dec}"
@@ -39,11 +44,19 @@ resource "aws_instance" "k3_node" {
       dbname      = var.dbname
     }
   )
+
   root_block_device {
     volume_size = var.vol_size # 10
   }
-  tags = {
-    Name = "k3-${random_id.k3_node_id[count.index].dec}"
+
+  provisioner "local-exec" {
+    command = templatefile("${path.cwd}/scp_script.tpl",
+      {
+        nodeip   = self.public_ip
+        k3s_path = "${path.cwd}/../"
+        nodename = self.tags.Name
+      }
+    )
   }
 }
 

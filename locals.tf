@@ -8,10 +8,10 @@ locals {
       name        = "public_sg"
       description = "Allow SSH Traffic to VPC"
       ingress = {
-        ssh = {
-          from        = 22
-          to          = 22
-          protocol    = "tcp"
+        open = {
+          from        = 0
+          to          = 0
+          protocol    = -1 // allows all protocols
           cidr_blocks = [var.access_ip]
         }
         http = {
